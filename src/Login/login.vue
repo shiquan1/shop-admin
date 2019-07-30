@@ -61,16 +61,9 @@ export default {
   methods: {
     submitForm () {
       this.$refs.loginForm.validate((valid) => {
-        // if (!valid) {
-        //   this.$message({
-        //     message: '验证失败',
-        //     type: 'error',
-        //     duration: 800
-        //   })
-        //   return
-        // }
         axios.post('http://localhost:8888/api/private/v1/login ', this.loginForm).then(res => {
           if (res.data.meta.status === 200) {
+            localStorage.setItem('token', res.data.data.token)
             this.$message({
               message: '验证成功',
               type: 'success',
@@ -78,7 +71,6 @@ export default {
             })
             // 跳转到home
             this.$router.push('/home')
-            console.log(this.$router)
           } else {
             this.$message({
               message: '验证失败',
