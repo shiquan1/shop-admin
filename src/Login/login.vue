@@ -26,9 +26,9 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="submitForm('ruleForm')"
+            @click="submitForm()"
           >登陆</el-button>
-          <el-button @click="resetForm('ruleForm')">重置</el-button>
+          <el-button @click="resetForm()">重置</el-button>
         </el-form-item>
       </el-form>
 
@@ -38,7 +38,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data () {
     return {
@@ -60,25 +59,34 @@ export default {
   },
   methods: {
     submitForm () {
-      this.$refs.loginForm.validate((valid) => {
-        axios.post('http://localhost:8888/api/private/v1/login ', this.loginForm).then(res => {
-          if (res.data.meta.status === 200) {
-            localStorage.setItem('token', res.data.data.token)
-            this.$message({
-              message: '验证成功',
-              type: 'success',
-              duration: 800
-            })
-            // 跳转到home
-            this.$router.push('/home')
-          } else {
-            this.$message({
-              message: '验证失败',
-              type: 'error',
-              duration: 800
-            })
-          }
-        })
+      this.$refs.loginForm.validate(async (valid) => {
+        if (!valid) {
+          // return console.log('校验失败');
+          this.$message({
+            message: '校验失败',
+            type: 'error',
+            duration: 800
+          })
+          return
+        }
+        let res = await this.$axios.post('login', this.loginForm)
+        console.log(res)
+        if (res.data.meta.status === 200) {
+          localStorage.setItem('token', res.data.data.token)
+          this.$message({
+            message: '验证成功',
+            type: 'success',
+            duration: 800
+          })
+          // 跳转到home
+          this.$router.push('/home')
+        } else {
+          this.$message({
+            message: '验证失败',
+            type: 'error',
+            duration: 800
+          })
+        }
       })
     },
     resetForm () {

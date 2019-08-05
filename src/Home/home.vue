@@ -32,23 +32,13 @@
           text-color="#fff"
           active-text-color="#ffd04b"
         >
-          <el-submenu index="1">
+          <el-submenu :index="item.id +''" v-for='item in list' :key='item.id'>
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{ item.authName }}</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="/users">用户列表</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="/roles">角色列表</el-menu-item>
-              <el-menu-item index="/rights">权限列表</el-menu-item>
+              <el-menu-item :index="'/' + item1.path" v-for='item1 in item.children' :key='item1.id'>{{ item1.authName }}</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -62,13 +52,22 @@
 
 <script>
 export default {
+  data () {
+    return {
+      list: []
+    }
+  },
+  created () {
+    this.getMenus()
+  },
   methods: {
-    logout () {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
+    async logout () {
+      try {
+        await this.$confirm('此操作将退出, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
         localStorage.removeItem('token')
         this.$message({
           type: 'success',
@@ -76,16 +75,20 @@ export default {
           duration: 800
         })
         this.$router.push('/login')
-      }).catch(() => {
+      } catch (error) {
         this.$message({
           type: 'info',
           message: '取消退出',
           duration: 800
         })
-      })
+      }
     },
     handleUrlPath () {
       return this.$route.path
+    },
+    async getMenus () {
+      let res = await this.$axios.get('menus')
+      this.list = res.data.data
     }
   }
 }
@@ -108,10 +111,11 @@ export default {
   }
 }
 .el-aside {
-  background: rgb(119, 167, 119);
+  background: rgb(203, 186, 218);
 }
 .el-main {
-  background: rgb(179, 102, 102);
+  background: rgb(241, 236, 236);
+  overflow: hidden;
 }
 .el-container {
   height: 100%;
